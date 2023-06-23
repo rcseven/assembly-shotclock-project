@@ -1,33 +1,60 @@
 #include <at89x52.h>
+const int sevenSegment[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66,
+                            0x6D, 0x7D, 0x07, 0x7F, 0x6F};
 
-// Write a delay function
+// create a delay function
 void delay(void)
 {
     __asm
-        MOV R2, #250
+        mov r0, #50
+    L1:
+        mov r1, #50
+    L2:
+        mov r2, #50
+    L3:
+        djnz r2, L3
+        djnz r1, L2
+        djnz r0, L1
+    __endasm;
+}
 
-        LOOP_1:
-            ; Inner loop 2 counter -> 2
-            MOV R1, #247
-
-            LOOP_2:
-                ; Inner loop 3 counter -> 6
-                MOV R0, #6
-
-                LOOP_3:   
-                    DJNZ R0, LOOP_3 ; Decrement R0, jump if not zero
-
-                DJNZ R1, LOOP_2 ; Decrement R1, jump if not zero
-
-            DJNZ R2, LOOP_1 ; Decrement R2, jump if not zero
+void buzzer(void)
+{
+    __asm
+        clr P3.5
     __endasm;
 }
 
 void main(void)
 {
+    int count = 24;
     while (1)
-    {
-        P1_0 = !P1_0;
-        delay();
+    {   
+        for (int i = count; i >= 0; i--)
+        {   
+            P3_5 = 1;
+            P2 = sevenSegment[i / 10];
+            P3_0 = 0;
+            P3_1 = 1;
+            delay();
+            P2 = sevenSegment[i % 10];
+            P3_0 = 1;
+            P3_1 = 0;
+            delay();
+
+            if (!P3_3){
+                count = 24;
+                break;
+            }
+            if(!P3_4){
+                count = 14;
+                break;
+            }
+        }
+
+        while (P3_3 && P3_4)
+        {
+            buzzer();
+        }
     }
 }
