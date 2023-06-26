@@ -1,62 +1,118 @@
 #include <at89x52.h>
-const int sevenSegment[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66,
+#define GameTime 600
+#define BTN_RST_14 P3_2
+#define BTN_RST_24 P3_3
+
+unsigned char game_minutes = 10;
+unsigned char game_seconds = 0;
+unsigned char shotclock_seconds = 24;
+const int seven_segment[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66,
                             0x6D, 0x7D, 0x07, 0x7F, 0x6F};
 
-void delay(void)
+void delay(unsigned int i)
 {
-    __asm
-        mov r0, #45
-    L1:
-        mov r1, #43
-    L2:
-        mov r2, #10
-    L3:
-        djnz r2, L3
-        djnz r1, L2
-        djnz r0, L1
-    __endasm;
-}
-
-void buzzer(void)
-{
-    __asm
-        clr P3.5
-    __endasm;
+    
+    for (int j = i; j < 48; j++)
+    {
+        for (int k = 0; k < 48; k++)
+        {
+            __asm
+                nop
+                nop
+                nop
+                nop
+                nop
+            __endasm;
+        }
+    }
+    
 }
 
 void main(void)
 {
-    int count = 24;
     while (1)
-    {   
-        for (int i = count; i >= 0; i--)
-        {   
-            P3_5 = 1;
-            for (int j = 0; j < 8; j++)
+    {
+        while (GameTime)
+        {
+            for (int i = shotclock_seconds; i >= 0; i--)
             {
-                P2 = sevenSegment[i / 10];
-                P3_0 = 0;
-                P3_1 = 1;
-                delay();
-                P2 = sevenSegment[i % 10];
-                P3_0 = 1;
-                P3_1 = 0;
-                delay();
+                P3_4 = 0;
+                for (int j = 0; j < 8; j++)
+                {
+                    // First Iter
+                    P2 = seven_segment[i / 10];
+                    P1 = seven_segment[game_minutes / 10];
+                    P0_0 = 0;
+                    P0_1 = 1;
+                    P0_2 = 1;
+                    P0_3 = 1;
+
+                    P3_0 = 0;
+                    P3_1 = 1;
+                    delay(1.8);
+
+                    // Second Iter
+                    P2 = seven_segment[i % 10];
+                    P1 = seven_segment[game_minutes % 10];
+                    P0_0 = 1;
+                    P0_1 = 0;
+                    P0_2 = 1;
+                    P0_3 = 1;
+
+                    P3_0 = 1;
+                    P3_1 = 0;
+                    delay(1.8);
+
+                    // Third Iter
+                    P2 = seven_segment[i / 10];
+                    P1 = seven_segment[game_seconds / 10];
+                    P0_0 = 1;
+                    P0_1 = 1;
+                    P0_2 = 0;
+                    P0_3 = 1;
+
+                    P3_0 = 0;
+                    P3_1 = 1;
+                    delay(1.8);
+
+                    // Fourth Iter
+                    P2 = seven_segment[i % 10];
+                    P1 = seven_segment[game_seconds % 10];
+                    P0_0 = 1;
+                    P0_1 = 1;
+                    P0_2 = 1;
+                    P0_3 = 0;
+
+                    P3_0 = 1;
+                    P3_1 = 0;
+                    delay(1.8);
+                }
+
+                if (!BTN_RST_24)
+                {
+                    shotclock_seconds = 24;
+                    break;
+                }
+                if (!BTN_RST_14)
+                {
+                    shotclock_seconds = 14;
+                    break;
+                }
+
+                if (game_seconds == 0)
+                {
+                    game_minutes--;
+                    game_seconds = 59;
+                }else{
+                    game_seconds--;
+                }
+                
             }
             
-            if (!P3_3){
-                count = 24;
-                break;
+            while (BTN_RST_14 && BTN_RST_24)
+            {
+                P3_4 = 1;
             }
-            if(!P3_4){
-                count = 14;
-                break;
-            }
-        }
-
-        while (P3_3 && P3_4)
-        {
-            buzzer();
         }
     }
 }
