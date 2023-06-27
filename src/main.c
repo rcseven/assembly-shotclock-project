@@ -13,7 +13,7 @@ void delay(unsigned int i)
 
     for (; i > 0; i--)
     {
-        for (int k = 0; k < 1200; k++)
+        for (int k = 0; k < 5000; k++)
         {
             __asm 
                 nop
@@ -54,11 +54,16 @@ void main(void)
             P3_5 = 0;
 
             display(i, 1, game_minutes, game_seconds);
-        
+
+            while (!P3_4)
+            {
+                display(i, 1, game_minutes, game_seconds);
+            }
+
             if (game_seconds == 0 && game_minutes == 0)
             {
                 break;
-            }
+            }      
 
             if (!BTN_RST_24)
             {
