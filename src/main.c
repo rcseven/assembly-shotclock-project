@@ -11,15 +11,11 @@ const int seven_segment[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66,
 void delay(unsigned int i)
 {
 
-    for (int j = i; j < 30; j++)
+    for (; i > 0; i--)
     {
-        for (int k = 0; k < 30; k++)
+        for (int k = 0; k < 1200; k++)
         {
             __asm 
-                nop
-                nop
-                nop
-                nop
                 nop
             __endasm;
         }
@@ -28,61 +24,24 @@ void delay(unsigned int i)
 
 void display(unsigned char i, unsigned char delay_time, unsigned char game_minutes, unsigned char game_seconds)
 {
-    for (int j = 0; j < 8; j++)
+    unsigned char digit_values_shotclock[2] = {i / 10, i % 10};
+    unsigned char digit_values_gameclock[4] = {game_minutes / 10, game_minutes % 10, game_seconds / 10, game_seconds % 10};
+
+    for (int j = 0; j < 15; j++)
     {
-
-        if (game_seconds < 24 && game_minutes == 0)
+        for (int iter = 0; iter < 4; iter++)
         {
-            i = game_seconds;
+            P2 = seven_segment[digit_values_shotclock[iter % 2 == 0 ? 0 : 1]];
+            P1 = seven_segment[digit_values_gameclock[iter]];
+            P0_0 = iter == 0 ? 0 : 1;
+            P0_1 = iter == 1 ? 0 : 1;
+            P0_2 = iter == 2 ? 0 : 1;
+            P0_3 = iter == 3 ? 0 : 1;
+            P3_0 = iter % 2 == 0 ? 0 : 1;
+            P3_1 = iter % 2 != 0 ? 0 : 1;
+
+            delay(delay_time);
         }
-
-        // First Iter
-        P2 = seven_segment[i / 10];
-        P1 = seven_segment[game_minutes / 10];
-        P0_0 = 0;
-        P0_1 = 1;
-        P0_2 = 1;
-        P0_3 = 1;
-
-        P3_0 = 0;
-        P3_1 = 1;
-        delay(delay_time);
-
-        // Second Iter
-        P2 = seven_segment[i % 10];
-        P1 = seven_segment[game_minutes % 10];
-        P0_0 = 1;
-        P0_1 = 0;
-        P0_2 = 1;
-        P0_3 = 1;
-
-        P3_0 = 1;
-        P3_1 = 0;
-        delay(delay_time);
-
-        // Third Iter
-        P2 = seven_segment[i / 10];
-        P1 = seven_segment[game_seconds / 10];
-        P0_0 = 1;
-        P0_1 = 1;
-        P0_2 = 0;
-        P0_3 = 1;
-
-        P3_0 = 0;
-        P3_1 = 1;
-        delay(delay_time);
-
-        // Fourth Iter
-        P2 = seven_segment[i % 10];
-        P1 = seven_segment[game_seconds % 10];
-        P0_0 = 1;
-        P0_1 = 1;
-        P0_2 = 1;
-        P0_3 = 0;
-
-        P3_0 = 1;
-        P3_1 = 0;
-        delay(delay_time);
     }
 }
 
