@@ -13,9 +13,11 @@ void delay(unsigned int i)
 
     for (; i > 0; i--)
     {
-        for (int k = 0; k < 5000; k++)
+        for (int k = 0; k < 1000; k++)
         {
             __asm 
+                nop
+                nop
                 nop
             __endasm;
         }
@@ -37,8 +39,14 @@ void display(unsigned char i, unsigned char delay_time, unsigned char game_minut
             P0_1 = iter == 1 ? 0 : 1;
             P0_2 = iter == 2 ? 0 : 1;
             P0_3 = iter == 3 ? 0 : 1;
-            P3_0 = iter % 2 == 0 ? 0 : 1;
-            P3_1 = iter % 2 != 0 ? 0 : 1;
+
+            if (game_minutes == 0 && shotclock_seconds > game_seconds){
+                P3_0 = 1;
+                P3_1 = 1;
+            }else{
+                P3_0 = iter % 2 == 0 ? 0 : 1;
+                P3_1 = iter % 2 != 0 ? 0 : 1;
+            }
 
             delay(delay_time);
         }
