@@ -13,11 +13,9 @@ void delay(unsigned int i)
 
     for (; i > 0; i--)
     {
-        for (int k = 0; k < 1000; k++)
+        for (int k = 0; k < 500; k++)
         {
             __asm 
-                nop
-                nop
                 nop
             __endasm;
         }
@@ -29,7 +27,7 @@ void display(unsigned char i, unsigned char delay_time, unsigned char game_minut
     unsigned char digit_values_shotclock[2] = {i / 10, i % 10};
     unsigned char digit_values_gameclock[4] = {game_minutes / 10, game_minutes % 10, game_seconds / 10, game_seconds % 10};
 
-    for (int j = 0; j < 15; j++)
+    for (int j = 0; j < 35; j++)
     {
         for (int iter = 0; iter < 4; iter++)
         {
