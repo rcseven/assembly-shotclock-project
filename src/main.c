@@ -100,6 +100,8 @@ void main(void)
         while (BTN_RST_14 && BTN_RST_24)
         {
             P3_5 = 1;
+            P3_6 = 1;
+            display(0, 1, game_minutes, game_seconds);
         }
     }
 }
